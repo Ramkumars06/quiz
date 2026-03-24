@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+
+    <style>
+        body {
+            background-color: rgb(125, 139, 151);
+        }
+
+        .total-div {
+            text-align: center;
+            background-color: rgb(219, 219, 219);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+
+        }
+
+        .flex {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form {
+            margin: auto;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .h1 {
+            text-align: center;
+            color: rgb(255, 255, 255);
+        }
+
+        .btn {
+            padding: 10px;
+        }
+
+        #email {
+            width: 280px;
+        }
+
+        @media (max-width: 600px) {
+            .total-div {
+                width: 89%;
+            }
+
+            #email {
+                width: 180px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h2 class="h1">Register</h2>
+    <div class="total-div">
+        <form id="form" class="form">
+            <div class="flex">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="btn">
+                <button type="submit">Register</button>
+                <button onclick="login()">Go Login</button>
+            </div>
+        </form>
+    </div>
+    </div>
+    <script>
+
+        let form = document.getElementById("form")
+
+        form.addEventListener("submit", function (e) {
+
+            e.preventDefault()
+            //get the values from input box this was stringify and send to backend for register the user
+            let name = document.getElementById("name").value
+            let email = document.getElementById("email").value
+            let password = document.getElementById("password").value
+
+            fetch("http://localhost:5000/user")
+                .then(res => res.json())
+                .then(data => {
+                    // checj the email for validation
+                    let exist = data.find(u => u.email === email)
+
+                    if (exist) {
+                        alert("Email already exists so redirect to login")
+                        login()
+                    }
+                    else {
+                        fetch("http://localhost:5000/user", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                name: name,
+                                email: email,
+
+                                password: password,
+                                role: "user"
+                            })
+                        })
+                        // after register successfully then it will redirect to login page
+                            .then(() => {
+                                login()
+                                alert("Registered Successfully")
+                            })
+                    }
+                })
+        })
+        // went to login page only if it pass register
+        function login() {
+            window.location.href = "login.html"
+        }
+    </script>
+
+</body>
+
+</html>

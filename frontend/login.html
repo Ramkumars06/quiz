@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        .total-div {
+            text-align: center;
+            background-color: beige;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+
+        }
+
+        body {
+             background-color: rgb(125, 139, 151);
+        }
+
+        .flex {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form {
+            margin: auto;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .h1 {
+            text-align: center;
+            color: rgb(255, 255, 255);
+        }
+
+        .btn {
+            padding: 10px;
+        }
+
+        #email {
+            width: 280px;
+        }
+
+        @media (max-width: 600px) {
+            .total-div {
+                width: 90%;
+            }
+
+            #email {
+                width: 180px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h2 class="h1">Login</h2>
+    <div class="total-div">
+        <form id="form" class="form">
+            <!-- input boxes -->
+            <div class="flex">
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <div class="btn">
+                <button type="submit">Login</button>
+                <button><a onclick="reg()">Go Register</a></button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let form = document.getElementById("form")
+
+        form.addEventListener("submit", function (e) {
+
+            e.preventDefault()
+
+            let email = document.getElementById("email").value
+            let password = document.getElementById("password").value
+            // get the user from the server and chech the email and password of the user
+            fetch("http://localhost:5000/user")
+                .then(res => res.json())
+                .then(data => {
+
+                    let user = data.find(u => u.email === email && u.password === password)
+
+                    if (!user) {
+                        alert("Invalid Login so redirect to register")
+                        reg()
+                    }
+                    else {
+                        // this condition is only true when the role is admin and I put the admin only one and that adin role was static
+                        if (user.role === "admin") {
+                            window.location.href = "admin.html"
+                        }
+                        else {
+                            window.location.href = "user.html"
+                        }
+                    }
+                })
+        })
+        // went to registration if email were not registered
+        function reg() {
+            window.location.href = "index.html"
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>user</title>
+
+    <style>
+        body {
+            background-color: rgb(125, 139, 151);
+        }
+
+        .total-div {
+            text-align: center;
+            width: 30%;
+            background-color: beige;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .h2 {
+            text-align: center;
+            color: rgb(255, 255, 255);
+        }
+
+        #list button {
+            padding: 8px 17px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #list {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                width: 80%;
+            }
+
+            .total-div {
+                width: 70%;
+            }
+
+        }
+    </style>
+</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+
+    <h2 class="h2">Available Quizzes</h2>
+    <div class="total-div">
+        <div id="list"></div>
+        <button onclick="btn()">back</button>
+
+
+        <script>
+
+            fetch("http://localhost:5000/quiz")
+                .then(res => res.json())
+                .then(data => {
+
+                    let div = document.getElementById("list")
+
+                    if (data.length === 0) {
+                        // if there is no quiz then it will return this
+                        div.textContent = "No quizzes available"
+                        return
+                    }
+
+                    data.forEach(q => {
+                        let btn = document.createElement("button")
+                        // we create the button and put the title in it
+                        btn.textContent = q.title
+
+                        // when we click it it will render as per the quiz id that the title have
+                        btn.onclick = function () {
+                            window.location.href = "play.html?id=" + q.id
+
+                        }
+
+                        div.appendChild(btn)
+                        // these will create <br> to breake that line and move to next line
+                        div.appendChild(document.createElement("br"))
+
+                    })
+
+                })
+
+            function btn() {
+                window.location.href = "login.html"
+            }
+        </script>
+
+</body>
+
+</html>

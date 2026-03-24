@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        text-align: center;
+        background-color: rgb(125, 139, 151);
+    }
+
+    #quiz {
+        text-align: center;
+    }
+
+    .col {
+        color: aliceblue;
+    }
+
+    .total-div {
+        text-align: center;
+        background-color: beige;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 10px;
+
+    }
+</style>
+
+<body>
+
+    <div id="rules">
+
+        <h2 class="col">Quiz Instructions</h2>
+
+        <ul class="col">
+            <p>Do not use ChatGPT or any AI tools</p>
+            <p>do not open other tabs</p>
+            <p>each question has limited time</p>
+            <p>quiz will auto move when time ends</p>
+            <p>do not refresh the page</p>
+        </ul>
+
+        <button onclick="startQuiz()">Start Quiz</button>
+
+    </div>
+    <div class="total-div">
+        <div id="quiz" style="display:none">
+            <h2 id="question"></h2>
+            <div id="options"></div>
+            <p>Time: <span id="timer"></span></p>
+            <button onclick="nextQuestion()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        //we use new urlsearchparams and it was built-in web api it help us to add edit and delete easily with parameters in the url and we get the quiz id from the url and store it in quizid variable
+        let params = new URLSearchParams(window.location.search)
+        let quizId = Number(params.get("id"))
+        console.log(params)
+        let questions = []
+        let index = 0
+        let score = 0
+        let interval
+
+        fetch("http://localhost:5000/questions?quizId=" + quizId)
+            .then(res => res.json())
+            .then(data => {
+
+                questions = data
+
+                if (questions.length === 0) {
+                    document.getElementById("rules").innerHTML =
+                        "<h3>No questions available</h3>"
+                }
+
+            })
+        // when we click the button then the quiz will started so I use display none for the rules
+        function startQuiz() {
+
+            document.getElementById("rules").style.display = "none"
+            document.getElementById("quiz").style.display = "block"
+
+            showQuestion()
+
+        }
+
+        function showQuestion() {
+            // last question interval time had been clear using clearinterval
+            clearInterval(interval)
+
+            let q = questions[index]
+
+            document.getElementById("question").textContent =
+                "Question " + (index + 1) + " / " + questions.length + " : " + q.question
+
+            let optDiv = document.getElementById("options")
+            optDiv.innerHTML = ""
+
+            q.options.forEach((option, i) => {
+                console.log(i)
+                let btn = document.createElement("button")
+                btn.textContent = option
+
+                btn.onclick = function () {
+
+                    clearInterval(interval)
+
+                    if (i + 1 === q.ans) {
+                        score++
+                    }
+
+                    nextQuestion()
+
+                }
+
+                optDiv.appendChild(btn)
+                optDiv.appendChild(document.createElement("br"))
+                optDiv.appendChild(document.createElement("br"))
+
+            })
+
+            startTimer(q.time)
+
+        }
+
+        function nextQuestion() {
+
+            index++
+            //when the index is equal to the length of the question then it will redirect to the result page and pass the score and total question in query params
+            if (index < questions.length) {
+                showQuestion()
+            }
+            else {
+                // send the score and total question in query params this was used in result page
+                window.location.href = "result.html?score=" + score + "&total=" + questions.length
+            }
+
+        }
+
+        // seconds which admi n give in the input box
+        function startTimer(seconds) {
+            let sec = seconds
+            let el = document.getElementById("timer")
+
+            el.textContent = sec
+
+            interval = setInterval(() => {
+                sec--
+                el.textContent = sec
+
+                if (sec <= 0) {
+                    clearInterval(interval)
+                    nextQuestion()
+                }
+
+            }, 1000)
+
+        }
+    </script>
+
+</body>
+
+</html>

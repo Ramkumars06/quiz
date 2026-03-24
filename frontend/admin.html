@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+
+    <style>
+        body {
+            text-align: center;
+             background-color: rgb(125, 139, 151);
+        }
+
+        input {
+            margin: 5px;
+            padding: 8px;
+            width: 250px;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #questionSection {
+            margin-top: 20px;
+        }
+
+        .total-div {
+            margin: auto;
+            background-color: beige;
+            padding: 30px;
+            border-radius: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="total-div">
+        <h2>Create Quiz</h2>
+
+        <input id="title" placeholder="Quiz Title">
+        <br>
+        <button onclick="createQuiz()">Create Quiz</button>
+        <hr>
+
+        <div id="questionSection" style="display:none">
+
+            <h2>Add Question</h2>
+
+            <input id="question" placeholder="Question"><br>
+            <!-- input boxes for option -->
+            <input id="o1" placeholder="Option 1">
+            <input id="o2" placeholder="Option 2">
+
+            <input id="o3" placeholder="Option 3">
+            <input id="o4" placeholder="Option 4"><br>
+
+            correct answer from-(1,2,3,4)<br>
+            <input id="ans" type="number" min="1" max="4"><br>
+
+            time (seconds)<br>
+            <input id="time" type="number"><br>
+
+            <button onclick="addQuestion()">Add Question</button>
+
+        </div>
+        <hr>
+
+        <h2>Questions</h2>
+
+
+        <div id="questionList"></div>
+        <button onclick="btn()">back</button>
+    </div>
+
+    <script>
+        let sum=document.getElementsByClassname("")
+        let k=document.querySelector("")
+        let currentQuizId = localStorage.getItem("quizId")
+
+        if (currentQuizId) {
+            document.getElementById("questionSection").style.display = "block"
+            loadQuestions()
+        }
+
+        function createQuiz() {
+
+            let title = document.getElementById("title").value.trim()
+            // console.log(title)
+            if (title === "") {
+                alert("Quiz title cannot be empty")
+                return;
+            }
+
+            fetch("http://localhost:5000/quiz", {
+
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+
+                // method: "GET",
+
+                body: JSON.stringify({
+                    title: title
+                })
+
+            })
+                .then(res => res.json())
+                .then(data => {
+                    currentQuizId = data.id
+                    // console.log(currentQuizId)
+                    // create our quizid
+                    localStorage.setItem("quizId", currentQuizId)
+                    document.getElementById("questionSection").style.display = "block"
+                    loadQuestions()
+                    alert("Quiz created. Now add questions.")
+                })
+
+        }
+
+        function addQuestion() {
+
+            let q = document.getElementById("question").value.trim()
+
+            let o1 = document.getElementById("o1").value.trim()
+            let o2 = document.getElementById("o2").value.trim()
+
+            let o3 = document.getElementById("o3").value.trim()
+            let o4 = document.getElementById("o4").value.trim()
+
+
+            let ans = Number(document.getElementById("ans").value)
+            let time = Number(document.getElementById("time").value)
+
+            if (q === "" || o1 === "" || o2 === "" || o3 === "" || o4 === "") {
+                alert("Please fill all fields")
+                return
+            }
+
+            if (ans < 1 || ans > 4) {
+                alert("Answer must be between 1 and 4")
+                return
+            }
+
+            if (!time || time <= 0) {
+                alert("Enter valid time")
+                return
+            }
+
+            // let xhr = XMLHttpRequest()
+            // console.log(xhr.response)
+            // if (xhr.readystate == 4 && xhr.status){}
+
+            fetch("http://localhost:5000/questions", {
+
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+
+
+                body: JSON.stringify({
+                    quizId: Number(currentQuizId),
+                    question: q,
+                    options: [o1, o2, o3, o4],
+                    ans: ans,
+                    time: time
+                })
+
+            })
+                .then(() => {
+                    loadQuestions()
+                    // after the questin will loaded then the input values are become empty
+                    document.getElementById("question").value = ""
+                    document.getElementById("o1").value = ""
+                    document.getElementById("o2").value = ""
+                    document.getElementById("o3").value = ""
+
+                    document.getElementById("o4").value = ""
+                    document.getElementById("ans").value = ""
+
+                    document.getElementById("time").value = ""
+                })
+        }
+        function loadQuestions() {
+            // load the question from the localhost by our quizId 
+            fetch("http://localhost:5000/questions?quizId=" + currentQuizId)
+                .then(res => res.json())
+                .then(data => {
+                    let div = document.getElementById("questionList")
+                    div.innerHTML = ""
+                    data.forEach((q, i) => {
+                        console.log(q)
+                        console.log(i)
+                        let p = document.createElement("p")
+                        // p.className("p")
+                        // shown from the questionlist and append child to the created div
+                        p.textContent =
+                            (i + 1) + ". " + q.question +
+                            " | correct answer: " + q.ans +
+                            " | options: " + q.options +
+                            " | time: " + q.time + " Sec"
+                        div.appendChild(p)
+                    })
+                })
+        }
+        function btn(){
+            alert("your quiz were stored")
+            window.location.href="login.html"
+        }
+    </script>
+
+</body>
+
+</html>

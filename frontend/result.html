@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+             background-color: rgb(125, 139, 151);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .total-div {
+            width: 100%;
+            margin: auto;
+            background-color: beige;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                width: 80%;
+            }
+
+            .total-div {
+                width: 70%;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="total-div">
+        <h2>Quiz Result</h2>
+
+        <h3 id="per"></h3>
+
+        <button onclick="home()">Back to Quiz List</button>
+    </div>
+
+    <script>
+        let url = new URLSearchParams(window.location.search)
+        let score = url.get("score")
+        let total = url.get("total")
+        let per = document.getElementById("per")
+        let percentage = Math.round((score / total) * 100)
+        let pass = "fail"
+        // score/total *100 was the % if we multiply 0.5 into 100 we get 50 which is minimum mark
+        if (score / total >= 0.5) {
+            pass = "pass"
+        }
+        let arr = ""
+        if (arr == "") {
+            // create element is only work with in the block scope
+            let a = document.createElement("div")
+            a.innerHTML = `<p>your score : ${score}/${total}</p><p>Total question : ${total}</p><p>correctly answer : ${score}</p><p>wrongly answer : ${total - score}</p><p>mark percentage : ${percentage} %</p><p>Result : ${pass}</p>`
+            per.appendChild(a)
+        }
+        // if you click the back to quiz list button then it will redirect to list of quiz
+        function home() {
+            window.location.href = "user.html"
+        }
+    </script>
+
+</body>
+
+</html>
